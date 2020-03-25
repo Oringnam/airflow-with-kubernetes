@@ -14,7 +14,7 @@ ENV TERM linux
 # Airflow
 ARG AIRFLOW_VERSION=1.10.8
 ARG AIRFLOW_USER_HOME=/usr/local/airflow
-ARG AIRFLOW_DEPS=""
+ARG AIRFLOW_DEPS="kubernetes"
 ARG PYTHON_DEPS=""
 ENV AIRFLOW_HOME=${AIRFLOW_USER_HOME}
 
@@ -53,7 +53,7 @@ RUN set -ex \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
-    && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
+#    && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
     && pip install -U pip setuptools wheel \
     && pip install pytz \
     && pip install pyOpenSSL \
@@ -77,13 +77,14 @@ RUN set -ex \
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
 
-RUN chown -R airflow: ${AIRFLOW_USER_HOME}
+#RUN chown -R airflow: ${AIRFLOW_USER_HOME}
+#RUN chmod u+x ${AIRFLOW_USER_HOME}
 RUN chmod +x /entrypoint.sh
 #RUN chown -R airflow: /entrypoint.sh
 
 EXPOSE 8080 5555 8793
 
-USER airflow
+#USER airflow
 WORKDIR ${AIRFLOW_USER_HOME}
 ENTRYPOINT ["/bin/bash","/entrypoint.sh"]
 CMD ["webserver"]

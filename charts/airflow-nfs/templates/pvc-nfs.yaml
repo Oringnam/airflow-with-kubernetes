@@ -1,0 +1,23 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "airflow-nfs.fullname" . }}-dags-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "airflow-storage"
+  resources:
+    requests:
+      storage: {{ .Values.pvc.dags.storage }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "airflow-nfs.fullname" . }}-logs-nfs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: "airflow-storage"
+  resources:
+    requests:
+      storage: {{ .Values.pvc.logs.storage }}

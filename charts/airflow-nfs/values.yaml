@@ -1,0 +1,17 @@
+# Default values for airflow-nfs.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+pvc:
+  dags:
+    #    enabled: true
+    storage: 10Gi
+
+  logs:
+    #    enabled: true
+    storage: 100Gi
+
+storage:
+  provisioner: kubernetes.io/gce-pd
+  type: pd-standard
+  reclaimPolicy: Retain

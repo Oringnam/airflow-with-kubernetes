@@ -1,0 +1,30 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ template "airflow.fullname" . }}-bigwave-dags
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  accessModes:
+    - {{ .Values.persistence.accessMode }}
+  nfs:
+    server: {{ .Values.persistence.nfsServer }}-dags-nfs-server.default.svc.cluster.local
+    path: "/"
+
+{{- end }}
+---
+{{- if .Values.logsPersistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ template "airflow.fullname" . }}-bigwave-logs
+spec:
+  capacity:
+    storage: {{ .Values.logsPersistence.size }}
+  accessModes:
+    - {{ .Values.logsPersistence.accessMode }}
+  nfs:
+    server: {{ .Values.logsPersistence.nfsServer }}-logs-nfs-server.default.svc.cluster.local
+    path: "/"
+{{- end }}

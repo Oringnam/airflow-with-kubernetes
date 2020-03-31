@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "airflow-nfs.fullname" . }}-dags-nfs-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: nfs-dags-server
+  template:
+    metadata:
+      labels:
+        role: nfs-dags-server
+    spec:
+      containers:
+        - name: nfs-server
+          image: gcr.io/google_containers/volume-nfs:0.8
+          ports:
+            - name: nfs
+              containerPort: 2049
+            - name: mountd
+              containerPort: 20048
+            - name: rpcbind
+              containerPort: 111
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /dags
+              name: {{ template "airflow-nfs.fullname" . }}-dags-nfs-pvc
+      volumes:
+        - name: {{ template "airflow-nfs.fullname" . }}-dags-nfs-pvc
+          persistentVolumeClaim:
+            claimName: {{ template "airflow-nfs.fullname" . }}-dags-nfs-pvc

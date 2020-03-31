@@ -1,10 +1,10 @@
 # VERSION 1.10.9
-# AUTHOR: Matthieu "Puckel_" Roisil
-# DESCRIPTION: Basic Airflow container
-# BUILD: docker build --rm -t puckel/docker-airflow .
-# SOURCE: https://github.com/puckel/docker-airflow
+# AUTHOR: Jin Won Park , Netmarble
+# DESCRIPTION: Kubernetes Executor Airflow container
+# SOURCE: http://nos-gitlab.nmn.io/bigscheduler/big-airflow_s
+# REFERENCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.7-slim
+FROM python:3.7-slim-buster
 LABEL maintainer="BigData_"
 
 # Never prompt the user for choices on installation/configuration of packages
@@ -12,9 +12,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.10.8
+ARG AIRFLOW_VERSION=1.10.9
 ARG AIRFLOW_USER_HOME=/usr/local/airflow
-ARG AIRFLOW_DEPS="kubernetes"
+ARG AIRFLOW_DEPS=""
 ARG PYTHON_DEPS=""
 ENV AIRFLOW_HOME=${AIRFLOW_USER_HOME}
 
@@ -53,13 +53,12 @@ RUN set -ex \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
-#    && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
+    && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
     && pip install -U pip setuptools wheel \
     && pip install pytz \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
     && pip install pyasn1 \
-    && pip install 'werkzeug<1.0.0' \
     && pip install apache-airflow[kubernetes,crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
     && pip install 'redis==3.2' \
     && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
@@ -77,14 +76,11 @@ RUN set -ex \
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_USER_HOME}/airflow.cfg
 
-#RUN chown -R airflow: ${AIRFLOW_USER_HOME}
-#RUN chmod u+x ${AIRFLOW_USER_HOME}
-RUN chmod +x /entrypoint.sh
-#RUN chown -R airflow: /entrypoint.sh
+RUN chown -R airflow: ${AIRFLOW_USER_HOME}
 
 EXPOSE 8080 5555 8793
 
-#USER airflow
+USER airflow
 WORKDIR ${AIRFLOW_USER_HOME}
-ENTRYPOINT ["/bin/bash","/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["webserver"]
